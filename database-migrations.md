@@ -15,6 +15,49 @@
   - 实在不行用 pt-online-schema-change 或 gh-ost
 - **外键约束**：开发环境要，prod 看情况。高并发场景外键是性能杀手，用应用层保证一致性
 
+## 建表规范
+
+### 必须有的列
+每张业务表必须包含：
+```sql
+created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+```
+- **created_at**：记录创建时间，写入后不再修改
+- **updated_at**：记录最后修改时间，每次 UPDATE 自动更新
+- PostgreSQL 用 `TIMESTAMPTZ`，MySQL 用 `TIMESTAMP` 或 `DATETIME(3)`（毫秒精度）
+- 别用 `datetime` 字符串，别靠应用层传时间
+
+### 索引规范
+- **主键必须有**：每张表一个自增 `BIGINT` 或 UUID 主键。别用业务字段当主键
+- **外键建索引**：所有外键列必须建索引，不然 JOIN 和级联操作全表扫描
+- **高频 WHERE 列建索引**：看查询最多的 5 条 SQL，WHERE 条件里的列都得有索引
+- **联合索引按区分度排**：区分度高的列放最左。`status`（3 种值）和 `user_id`（百万种），`user_id` 放前面
+- **唯一约束 = 唯一索引**：业务上不重复的字段直接建唯一索引，别靠应用层检查
+- **软删除要带索引**：有 `deleted_at` 的表，查询索引要包含 `deleted_at IS NULL` 条件，或者联合索引把 deleted_at 放前面
+- **别每个列都建索引**：写入慢、占磁盘。用 EXPLAIN 验证索引被实际用到再建
+- **命名规范**：
+  - 普通索引：`idx_<表名>_<列名>`，如 `idx_users_email`
+  - 唯一索引：`uk_<表名>_<列名>`，如 `uk_users_phone`
+  - 联合索引：`idx_<表名>_<col1>_<col2>`，如 `idx_orders_user_status`
+
+### 建表示例
+```sql
+CREATE TABLE orders (
+    id         BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    user_id    BIGINT UNSIGNED NOT NULL,
+    order_no   VARCHAR(32)     NOT NULL,
+    status     TINYINT         NOT NULL DEFAULT 0,
+    amount     DECIMAL(10,2)   NOT NULL,
+    created_at TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_orders_order_no (order_no),
+    INDEX      idx_orders_user_id (user_id),
+    INDEX      idx_orders_status_created (status, created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+```
+
 ## 执行前检查
 - **先跑 dry-run**：不管什么工具，先看生成的 SQL 长什么样
 - **检查锁表风险**：`SHOW ENGINE INNODB STATUS` 了解当前锁情况
