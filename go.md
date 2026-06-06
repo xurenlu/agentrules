@@ -58,6 +58,7 @@ project/
 ├── cmd/server/main.go       # 入口
 ├── internal/
 │   ├── api/                 # API handler
+│   ├── migrate/             # 数据库迁移封装
 │   └── web/                 # embed + spa handler
 ├── web/                     # React 源码（Vite 项目）
 │   ├── src/
@@ -90,10 +91,19 @@ build:
 	go build -o bin/server ./cmd/server
 ```
 
+### 迁移与启动
+- **启动自动 up 一次**：数据相关 migration 一般在服务启动时自动执行一次 `migration up`；执行失败必须阻止服务继续启动，并输出当前版本、目标版本、失败 SQL/迁移文件等上下文
+- **CLI 必须可手动操作**：服务二进制应提供迁移子命令，如 `server migrate up`、`server migrate down --steps 1`、`server migrate status`，方便部署、排障和回滚
+- **down 谨慎执行**：`migration down` 只能在确认数据备份、回滚范围和兼容性后手动执行；涉及删字段/删表的 down 要先备份数据
+- **多实例加锁**：多实例部署时，启动自动迁移必须使用数据库锁、迁移工具自带锁或分布式锁，确保同一时间只有一个实例执行 migration
+
 ### 部署
 - `scp bin/server user@host:/opt/app/` 拷过去直接 `./server`
 - 一个二进制包含前端+后端，无外部依赖
 - 配合 systemd 或 supervisor 做进程守护
+- **安装前备份旧二进制**：部署新版本前必须把当前运行的二进制备份到带版本号/时间戳的目录，例如 `/opt/app/releases/server-v1.2.3-20260606T120000`
+- **发布后反馈回滚方法**：每次部署完成后，部署脚本或发布记录必须输出本次备份路径、恢复旧二进制命令、重启命令，以及是否需要执行 `migration down`
+- **优先二进制回滚**：服务异常时优先恢复旧二进制并重启；只有数据库迁移确实不兼容旧版本时，才在备份确认后执行 `migration down`
 
 ### React 侧注意
 - Vite base 配成 `/`（或 `/app/` 如果做路径前缀）

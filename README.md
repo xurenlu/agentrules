@@ -7,6 +7,7 @@
 |------|------|
 | [programming.md](programming.md) | 编程：代码风格、错误处理、测试、设计原则、安全、日志 |
 | [version-control.md](version-control.md) | 版本管理：分支策略、语义化版本、CHANGELOG、Product Overview、Git 工作流 |
+| [deployment.md](deployment.md) | 服务部署：发布检查、迁移、产物备份、健康检查、回滚、CI/CD |
 | [database-migrations.md](database-migrations.md) | 数据库迁移：版本管理、执行规范、回滚、工具选择、CI/CD 集成 |
 | [database-queries.md](database-queries.md) | 数据库查询：SQL 规范、索引设计、查询优化、EXPLAIN、ORM |
 | [database-sync.md](database-sync.md) | 数据库同步：同步策略、增量设计、一致性、冲突解决、工具选型 |
