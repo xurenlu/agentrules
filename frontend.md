@@ -17,6 +17,7 @@
 
 ## React 特定
 - **函数组件 + Hooks**：类组件历史遗留问题。新代码全用函数组件
+- **React 文案走 i18n**：对外可见文本不要直接写在 JSX/TSX 里，使用 React 生态的 i18n 字典/资源文件
 - **useEffect 最小化**：大多数情况其实是 event handler 的逻辑，不需要 effect
 - **别用 useEffect 做数据请求**：用 React Query / SWR / RTK Query
 - **useMemo / useCallback 别滥用**：先有性能问题再优化。没有依赖的 memo 是负优化

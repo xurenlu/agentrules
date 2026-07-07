@@ -7,6 +7,13 @@
 - **魔法数字死刑**：所有硬编码数字/字符串抽成常量，给个有意义的名字
 - **提前 return**：减少嵌套层级，`if (!valid) return` 比 `if (valid) { ... 大段逻辑 }` 清晰得多
 
+## 国际化与本地化
+- **用户可见文案不硬编码**：UI 文案、错误提示、按钮文本、枚举展示名、通知内容都要走 i18n/本地化资源
+- **React 项目用 React 生态方案**：根据项目栈选择 react-i18next、FormatJS、next-intl 等方案，文案放在字典/资源文件里，JSX/TSX 不直接写死对外文本
+- **Swift/macOS/iOS 用 Apple 本地化方案**：优先使用 String Catalogs、`Localizable.strings`、`String(localized:)` / `NSLocalizedString` 等平台机制
+- **其他语言用通用 i18n 方案**：按生态选择 gettext、ICU MessageFormat、Java ResourceBundle、Rails I18n、Android `strings.xml` 等成熟方案
+- **业务值和展示文案分离**：数据库、API、枚举内部值保持稳定；展示层再映射到本地化文案，别把中文/英文展示名当业务值存
+
 ## 错误处理
 - **不要吞异常**：`catch (e) {}` 是犯罪。至少 log 一下
 - **错误信息要有上下文**：不是 "连接失败"，是 "连接 MySQL (10.0.1.5:3306) 失败: connection refused"
