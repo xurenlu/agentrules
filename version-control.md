@@ -49,6 +49,13 @@ hotfix/<问题描述>     # hotfix/critical-bug
 - 加了新功能但 API 没变？→ MINOR
 - 删了接口 / 改了字段类型 / 行为不兼容？→ MAJOR
 
+### macOS/iOS 项目：Build 号同步
+
+- 语义化版本写入 `CFBundleShortVersionString`（用户可见版本号）
+- `CFBundleVersion` / `CURRENT_PROJECT_VERSION`（Build 号）每次发版 **+1**，从 1 开始递增，不重置
+- 改版本号时必须同时改 Build 号，两者不能脱节
+- 在哪改：`Info.plist` / `.xcconfig` / Xcode 项目设置 `CURRENT_PROJECT_VERSION`
+
 ## CHANGELOG.md
 
 每次提交必须更新。按时间倒序，最新在最上面。
@@ -189,6 +196,63 @@ type(scope): summary
 - 别忘了 push tag（别人拉不到）
 - 别改完版本号不写 changelog
 - 别让 CHANGELOG 和代码不同步
+
+## .gitignore
+
+每个项目根目录必须有 `.gitignore`。以下是在各种项目中常见的忽略条目：
+
+### 通用
+```
+.DS_Store
+*.swp
+*.swo
+*~
+.env
+.env.local
+*.log
+.cache
+```
+
+### Node / 前端
+```
+node_modules/
+dist/
+build/
+.next/
+.nuxt/
+.cache/
+```
+
+### Go
+```
+.local-cache/
+vendor/（除非使用 vendor 模式）
+```
+
+### Python
+```
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+```
+
+### macOS / iOS
+```
+DerivedData/
+*.xcworkspace/xcuserdata/
+Pods/
+.build/
+```
+
+### 规则
+- **能匹配目录的用 `/` 结尾**（如 `node_modules/`），避免误伤同名文件
+- **优先用 `*` 模式**，别逐条写几百行
+- **敏感文件必须列在 `.gitignore`**（`.env`、密钥文件等）
+- **别临时 `git add -f` 忽略的文件**——除非真的有理由打破规则
 
 ## 完整 workflow 示例
 

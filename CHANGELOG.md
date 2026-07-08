@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.9.0] - 2026-07-08
+
+### Added
+- 版本管理规范新增 macOS/iOS 项目 Build 号同步规则，要求 `CFBundleShortVersionString` 与 `CFBundleVersion` / `CURRENT_PROJECT_VERSION` 同步维护。
+- 版本管理规范新增 `.gitignore` 基线，覆盖通用、Node/前端、Go、Python、macOS/iOS 常见忽略项和敏感文件规则。
+
+### Changed
+- Product Overview 更新当前版本和版本控制规范说明。
+
 ## [0.8.0] - 2026-07-08
 
 ### Added
