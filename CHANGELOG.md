@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.10.0] - 2026-07-08
+
+### Added
+- 规则生成脚本新增按输出文件名自适应标题和交互提示，支持生成 `CLAUDE.md`、`AGENTS.md` 或其他等价 AI 协作规则文档。
+- 规则生成脚本默认说明新增 docs 文档沉淀提醒，要求新项目关键决策落到 `docs/product-brief.md`、`docs/architecture.md`、`docs/design-system.md`、`docs/ui-tokens.md`、`docs/i18n.md` 和 `docs/decisions/`。
+
+### Changed
+- 更新规则生成脚本中的设计规范、版本管理规范摘要。
+- README 和 Product Overview 将工具说明从 Claude 专属改为通用 AI 协作规则文档。
+
 ## [0.9.0] - 2026-07-08
 
 ### Added

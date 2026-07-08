@@ -10,6 +10,10 @@ RuleDoc = Struct.new(:key, :file, :title, :summary, :tags, keyword_init: true)
 ROOT = File.expand_path("..", __dir__)
 DEFAULT_OUTPUT = "CLAUDE.md"
 
+def output_document_name(path)
+  File.basename(path.to_s.empty? ? DEFAULT_OUTPUT : path)
+end
+
 DOCS = [
   RuleDoc.new(
     key: "programming",
@@ -22,7 +26,7 @@ DOCS = [
     key: "design",
     file: "design.md",
     title: "多端产品设计规范",
-    summary: "新项目启动门禁、第一轮确认清单、启动文档模板和 UI 体系",
+    summary: "新项目启动门禁、UI 规范方向、docs 文档沉淀和多端规范",
     tags: %w[design h5 desktop-web mac-app android-app frontend app]
   ),
   RuleDoc.new(
@@ -85,7 +89,7 @@ DOCS = [
     key: "version-control",
     file: "version-control.md",
     title: "版本管理规范",
-    summary: "分支策略、语义化版本、CHANGELOG、Product Overview 和 Git 工作流",
+    summary: "分支策略、语义化版本、Build 号、CHANGELOG、.gitignore 和 Git 工作流",
     tags: %w[version git common required]
   )
 ].freeze
@@ -178,7 +182,7 @@ class RuleSelector
     prompt = try_tty_prompt
     if prompt
       selected_keys = prompt.multi_select(
-        "选择要整合进 CLAUDE.md 的规则文档：",
+        "选择要整合进 #{document_name} 的规则文档：",
         DOCS.map { |doc| { name: "#{doc.title} - #{doc.summary}", value: doc.key } },
         default: %w[programming design frontend version-control],
         per_page: 12
@@ -198,6 +202,7 @@ class RuleSelector
 
   def fallback_selection
     puts "未检测到 tty-prompt，将使用基础终端选择。安装提示：gem install tty-prompt"
+    puts "目标输出：#{document_name}"
     puts
     DOCS.each_with_index do |doc, index|
       puts "#{index + 1}. #{doc.title}（#{doc.file}）- #{doc.summary}"
@@ -218,9 +223,13 @@ class RuleSelector
     end
     docs_by_keys(keys)
   end
+
+  def document_name
+    output_document_name(@options[:output])
+  end
 end
 
-class ClaudeBuilder
+class RulesBundleBuilder
   def initialize(docs, options)
     @docs = docs
     @options = options
@@ -237,12 +246,16 @@ class ClaudeBuilder
 
   private
 
+  def document_name
+    output_document_name(@options[:output])
+  end
+
   def front_matter
     profile_names = Array(@options[:profiles]).map { |key| PROFILES.fetch(key, { name: key })[:name] }
     profile_line = profile_names.empty? ? "自定义选择" : profile_names.join("、")
 
     <<~MARKDOWN.strip
-      # CLAUDE.md
+      # #{document_name}
 
       > 由 `scripts/generate_claude_md.rb` 于 #{Date.today.iso8601} 生成。
       > 规则画像：#{profile_line}
@@ -254,10 +267,11 @@ class ClaudeBuilder
     <<~MARKDOWN.strip
       ## 使用说明
 
-      - 本文件是面向 Claude / AI 编程助手的整合规则入口。
+      - 本文件是面向 Claude / Codex / 其他 AI 编程助手的整合规则入口。
       - 若本文件与项目内更具体、更晚出现的 `AGENTS.md`、`CLAUDE.md` 或用户指令冲突，以更具体、更晚出现的指令为准。
       - AI 开工前先判断当前仓库是新项目、半成品还是既有项目迭代；判断不清时按新项目处理。
       - 新项目或规则缺失时，先生成/更新 `AGENTS.md`、`CLAUDE.md`、`PRODUCT_OVERVIEW.md` 或等价文档，写清产品定义、技术栈、设计规范、UI token、多语言计划、版本和验收标准。
+      - 新项目关键决策应沉淀到 `docs/product-brief.md`、`docs/architecture.md`、`docs/design-system.md`、`docs/ui-tokens.md`、`docs/i18n.md` 和 `docs/decisions/`，不要只依赖 memory 或聊天记录。
       - 新项目第一轮沟通只问 6-8 个高价值主题：定位、用户场景、首版范围、平台设备、设计方向、多语言、数据库/数据权限、交付验收；能从仓库判断的内容写成默认假设。
       - 架构、数据库、部署、测试、权限等工程决策先给最佳实践建议，再让用户确认；不要把选型责任全丢给用户。
       - UI 规范按平台和应用类型先给 2-4 套推荐方向，再让用户选择；选定后沉淀到 `docs/design-system.md`、`docs/ui-tokens.md` 等仓库文档。
@@ -378,7 +392,7 @@ if options[:list]
 end
 
 docs = RuleSelector.new(options).selected_docs
-content = ClaudeBuilder.new(docs, options).build
+content = RulesBundleBuilder.new(docs, options).build
 
 if options[:dry_run]
   puts content

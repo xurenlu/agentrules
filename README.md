@@ -30,6 +30,6 @@
 ## 工具脚本
 | 文件 | 内容 |
 |------|------|
-| [scripts/generate_claude_md.rb](scripts/generate_claude_md.rb) | 交互选择规则文档并生成整合版 `CLAUDE.md` |
+| [scripts/generate_claude_md.rb](scripts/generate_claude_md.rb) | 交互选择规则文档并生成整合版 AI 协作规则文档（如 `CLAUDE.md` / `AGENTS.md`） |
 
 > 这些不是教条，是我踩过坑之后总结的。有不同意见随时改。

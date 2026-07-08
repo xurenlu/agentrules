@@ -1,6 +1,6 @@
 # Product Overview
 
-> 最后更新：2026-07-08 | 当前版本：v0.9.0
+> 最后更新：2026-07-08 | 当前版本：v0.10.0
 
 ## 项目简介
 Alma 规则库沉淀日常软件开发、部署、数据库、前端、设计和项目协作规范，供 AI 助手和开发者在新项目、迭代、排障、交付时统一参考。
@@ -14,7 +14,7 @@ Alma 规则库沉淀日常软件开发、部署、数据库、前端、设计和
 - 部署规范：版本、备份、健康检查、回滚、发布反馈
 - 版本控制规范：分支、语义化版本、macOS/iOS Build 号、CHANGELOG、Product Overview、`.gitignore`、提交流程
 - Linux 服务器规范：安全基线、监控、备份、日志、性能和应急响应
-- 工具脚本：按项目画像交互选择规则文档并生成整合版 `CLAUDE.md`
+- 工具脚本：按项目画像交互选择规则文档并生成整合版 AI 协作规则文档（如 `CLAUDE.md` / `AGENTS.md`）
 
 ## 使用方式
 - 新项目启动时先判断项目阶段；若缺少产品定义、设计系统或协作规则文档，先按 `design.md` 生成/更新 `AGENTS.md`、`CLAUDE.md`、`PRODUCT_OVERVIEW.md` 或等价文档。
@@ -25,7 +25,7 @@ Alma 规则库沉淀日常软件开发、部署、数据库、前端、设计和
 - 涉及数据库结构变更时，必须参考 `database-migrations.md`。
 - 涉及发布部署时，必须参考 `deployment.md`、`version-control.md` 和对应语言规范。
 - 每次规则变更后，更新 `CHANGELOG.md`；功能性规则变化同步更新本文件。
-- 需要生成 Claude 规则入口时，运行 `ruby scripts/generate_claude_md.rb --list` 查看项目画像，再按需生成 `CLAUDE.md`。
+- 需要生成 AI 协作规则入口时，运行 `ruby scripts/generate_claude_md.rb --list` 查看项目画像，再按需生成 `CLAUDE.md`、`AGENTS.md` 或其他等价文件。
 
 ## 维护规则
 - 单个文件超过 2000 行时应考虑拆分，超过 3000 行必须拆分。
