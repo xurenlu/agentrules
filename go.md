@@ -1,5 +1,20 @@
 # Go 最佳实践
 
+## 硬约束
+
+> 本节是 AI 必守清单，违反即错误；下文各节是背景、示例和细节，按需阅读。
+
+- **MUST**：error 永远放返回值最后一位；wrap 时保留上下文（`fmt.Errorf("...: %w", err)`）
+- **MUST**：错误类型判断用 `errors.Is` / `errors.As`，不比对 `err.Error()` 字符串
+- **MUST**：goroutine 生命周期可控——context 取消 + WaitGroup/errgroup 等待，不泄漏
+- **MUST**：接口定义在使用方 package，不在实现方定义再被 import
+- **MUST**：同结构多用例的测试用表驱动
+- **MUST**：`main` 只做依赖注入和启动，业务逻辑放 `internal/`
+- **MUST**：涉及迁移与部署时遵守 [database-migrations.md](database-migrations.md) 与 [deployment.md](deployment.md) 的硬约束（启动自动 up、失败停启动、多实例锁、部署前备份旧二进制）
+- **MUST NOT**：panic 做流程控制；panic 只给不可恢复错误（配置缺失、启动失败）
+- **MUST NOT**：channel 读端执行 close；谁写谁 close
+- **MUST NOT**：用运行时反射的 DI 框架；要 DI 用构造函数参数或 wire
+
 ## 项目结构
 - **标准布局**：`cmd/` 入口、`internal/` 私有包、`pkg/` 可暴露库、`api/` proto/swagger
 - **别过度设计目录**：小项目平铺也行。`handler.go` + `service.go` + `repo.go` 三个文件能搞定的别拆 15 个目录
@@ -92,18 +107,13 @@ build:
 ```
 
 ### 迁移与启动
-- **启动自动 up 一次**：数据相关 migration 一般在服务启动时自动执行一次 `migration up`；执行失败必须阻止服务继续启动，并输出当前版本、目标版本、失败 SQL/迁移文件等上下文
-- **CLI 必须可手动操作**：服务二进制应提供迁移子命令，如 `server migrate up`、`server migrate down --steps 1`、`server migrate status`，方便部署、排障和回滚
-- **down 谨慎执行**：`migration down` 只能在确认数据备份、回滚范围和兼容性后手动执行；涉及删字段/删表的 down 要先备份数据
-- **多实例加锁**：多实例部署时，启动自动迁移必须使用数据库锁、迁移工具自带锁或分布式锁，确保同一时间只有一个实例执行 migration
+迁移规则统一见 [database-migrations.md](database-migrations.md)（启动自动 up、失败即停止启动、`migrate up/down/status` CLI 子命令、多实例加锁、down 谨慎执行）。Go 项目的落点：迁移封装在 `internal/migrate/`，服务二进制通过子命令暴露迁移操作。
 
 ### 部署
 - `scp bin/server user@host:/opt/app/` 拷过去直接 `./server`
 - 一个二进制包含前端+后端，无外部依赖
 - 配合 systemd 或 supervisor 做进程守护
-- **安装前备份旧二进制**：部署新版本前必须把当前运行的二进制备份到带版本号/时间戳的目录，例如 `/opt/app/releases/server-v1.2.3-20260606T120000`
-- **发布后反馈回滚方法**：每次部署完成后，部署脚本或发布记录必须输出本次备份路径、恢复旧二进制命令、重启命令，以及是否需要执行 `migration down`
-- **优先二进制回滚**：服务异常时优先恢复旧二进制并重启；只有数据库迁移确实不兼容旧版本时，才在备份确认后执行 `migration down`
+- 备份、回滚、健康检查、部署后反馈等规则统一见 [deployment.md](deployment.md)（替换前备份旧二进制、发布后输出备份路径和回滚命令、优先二进制回滚）
 
 ### React 侧注意
 - Vite base 配成 `/`（或 `/app/` 如果做路径前缀）

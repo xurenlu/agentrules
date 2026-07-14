@@ -1,5 +1,47 @@
 # Changelog
 
+## [0.14.0] - 2026-07-15
+
+### Added
+- 新增 `ai-guardrails.md` AI 协作红线：禁止 shell 重定向/heredoc 写文件、破坏性操作先确认、禁止强推共享分支、如实汇报执行结果；标记为 required，所有画像自动包含。
+- 编程规范硬约束新增单文件行数限制：超过 2000 行考虑拆分，超过 3000 行必须拆分。
+- 仓库根目录提交 `GENERATED_CLAUDE.md`：`--all --compact` 全量硬约束精简版示例，可直接复制到项目或对照检查。
+- 新增仓库 `.gitignore`。
+
+### Changed
+- README、Product Overview 和生成脚本 DOCS 挂入 AI 协作红线入口。
+
+## [0.13.0] - 2026-07-15
+
+### Added
+- 全部 11 个主题文档顶部新增「硬约束」小节：只含 MUST / MUST NOT 的 AI 必守清单，正文降级为背景与细节。
+- 规则生成脚本新增 `--compact` 模式，只整合各文档的「硬约束」小节（全量 1800+ 行精简为约 240 行），推荐注入 `CLAUDE.md` / `AGENTS.md`。
+
+### Changed
+- 版本号规则与全局约定对齐：默认约定下 bugfix 只递增 rc 号，功能新增才提升正式版本位并重置 rc；标准 SemVer（PATCH 递增）保留为对外发布库/包的例外，一个项目只能用一套。
+- 测试规范明确分层：API 层测试与端到端测试优先用 Ruby 编写并输出 JSON + Markdown 报告；单元测试用语言原生框架（Go test、Vitest、JUnit、pytest），浏览器 E2E 可用 Playwright。
+- monorepo 包管理由 pnpm workspace 改为 yarn workspaces，与「优先 yarn」保持一致；已有 pnpm/npm 体系沿用现状。
+- 迁移与部署回滚规则收拢到单一来源：`go.md`、`deployment.md` 中重复的迁移/备份条目改为链接 `database-migrations.md` 与 `deployment.md`。
+
+### Fixed
+- 生成脚本读取规则文件时显式指定 UTF-8 编码，修复非 UTF-8 locale 下 `invalid byte sequence` 报错。
+
+## [0.12.0] - 2026-07-12
+
+### Changed
+- 明确 `PRODUCT_OVERVIEW.md` 与 `ARCHITECTURE.md` 的职责边界、必答问题和不应包含的内容。
+- 为两份文档补充可复制模板、架构图示例和按变更类型判断更新目标的对照表。
+
+## [0.11.0] - 2026-07-12
+
+### Added
+- 新增根目录 `ARCHITECTURE.md`，记录规则库的系统边界、文档职责和维护方式。
+- 版本管理规范新增 `ARCHITECTURE.md` 约束：新项目必须创建，架构变更必须在同一改动中同步维护，并提供最小模板。
+
+### Changed
+- 设计规范、通用编程规范和规则生成脚本统一要求新项目生成 `ARCHITECTURE.md`，并在技术栈、模块、通信、存储、接口、认证、部署或关键集成变化时更新。
+- README 与 Product Overview 增加架构文档入口和维护说明。
+
 ## [0.10.0] - 2026-07-08
 
 ### Added

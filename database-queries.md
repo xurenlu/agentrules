@@ -1,5 +1,18 @@
 # 数据库查询最佳实践
 
+## 硬约束
+
+> 本节是 AI 必守清单，违反即错误；下文各节是背景、示例和细节，按需阅读。
+
+- **MUST**：一律参数化查询；动态表名/列名无法参数化时用白名单校验
+- **MUST**：WHERE / JOIN / ORDER BY 的高频列有索引，并用 EXPLAIN 验证索引实际被使用
+- **MUST**：深分页用游标（`WHERE id > last_id`），不用大 offset
+- **MUST**：ORM 关联查询避免 N+1（eager loading / JOIN FETCH / preload）
+- **MUST**：批量写入用批量语句，不循环单条
+- **MUST NOT**：`SELECT *`；明确列出需要的列
+- **MUST NOT**：把 `password_hash` 等敏感列查出传给前端，哪怕前端不用
+- **MUST NOT**：长事务；一个事务控制在秒级
+
 ## SQL 编写规范
 - **关键字大写，表名列名小写**：`SELECT id, name FROM users WHERE status = 1`
 - **别用 SELECT ***：明确列出需要的列。减少传输，避免列增减导致 bug

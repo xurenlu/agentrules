@@ -1,23 +1,26 @@
 # Product Overview
 
-> 最后更新：2026-07-08 | 当前版本：v0.10.0
+> 最后更新：2026-07-15 | 当前版本：v0.14.0
 
 ## 项目简介
 Alma 规则库沉淀日常软件开发、部署、数据库、前端、设计和项目协作规范，供 AI 助手和开发者在新项目、迭代、排障、交付时统一参考。
 
 ## 核心内容
+- 双层结构：每个主题文档顶部是「硬约束」清单（只含 MUST / MUST NOT，供 AI 必守），正文是背景、模板与细节（按需阅读）
+- AI 协作红线：文件编辑方式、破坏性操作确认、共享分支保护、如实汇报；required 文档，所有画像自动包含
 - 编程最佳实践：代码风格、错误处理、测试、安全、日志、设计原则
 - 多端产品设计规范：新项目启动门禁、第一轮确认清单、推荐默认方案、UI 规范方向推荐、文档优先、启动文档模板、UI 体系、多语言计划、数据库与数据确认、H5、电脑版网页、macOS App、Android App
 - 前端规范：TypeScript、React、状态管理、样式、性能、安全、测试
 - Go 与 Python 规范：项目结构、错误处理、测试、性能、常用库
 - 数据库规范：迁移、查询、同步、索引、回滚和 CI/CD 集成
 - 部署规范：版本、备份、健康检查、回滚、发布反馈
-- 版本控制规范：分支、语义化版本、macOS/iOS Build 号、CHANGELOG、Product Overview、`.gitignore`、提交流程
+- 版本控制规范：分支、语义化版本、macOS/iOS Build 号、CHANGELOG、Product Overview、Architecture 文档、`.gitignore`、提交流程，并提供两类文档的职责、更新时机与可复制模板
 - Linux 服务器规范：安全基线、监控、备份、日志、性能和应急响应
 - 工具脚本：按项目画像交互选择规则文档并生成整合版 AI 协作规则文档（如 `CLAUDE.md` / `AGENTS.md`）
 
 ## 使用方式
-- 新项目启动时先判断项目阶段；若缺少产品定义、设计系统或协作规则文档，先按 `design.md` 生成/更新 `AGENTS.md`、`CLAUDE.md`、`PRODUCT_OVERVIEW.md` 或等价文档。
+- 新项目启动时先判断项目阶段；若缺少产品定义、设计系统、架构或协作规则文档，先按 `design.md` 生成/更新 `AGENTS.md`、`CLAUDE.md`、`PRODUCT_OVERVIEW.md`、`ARCHITECTURE.md` 或等价文档。
+- 新项目必须创建根目录 `ARCHITECTURE.md`；技术栈、模块边界、服务通信、数据存储、接口协议、认证授权、部署拓扑或关键集成变更时，必须同步维护该文档。
 - 新项目第一轮沟通按 6-8 个高价值主题确认，避免把用户拖进过细的问卷。
 - 架构、数据库、部署、权限、测试等选型先给最佳实践建议，再让用户确认例外。
 - UI 规范按平台和应用类型先给推荐方向，用户确认后沉淀到 `docs/design-system.md`、`docs/ui-tokens.md` 等仓库文档。
@@ -25,7 +28,7 @@ Alma 规则库沉淀日常软件开发、部署、数据库、前端、设计和
 - 涉及数据库结构变更时，必须参考 `database-migrations.md`。
 - 涉及发布部署时，必须参考 `deployment.md`、`version-control.md` 和对应语言规范。
 - 每次规则变更后，更新 `CHANGELOG.md`；功能性规则变化同步更新本文件。
-- 需要生成 AI 协作规则入口时，运行 `ruby scripts/generate_claude_md.rb --list` 查看项目画像，再按需生成 `CLAUDE.md`、`AGENTS.md` 或其他等价文件。
+- 需要生成 AI 协作规则入口时，运行 `ruby scripts/generate_claude_md.rb --list` 查看项目画像，再按需生成 `CLAUDE.md`、`AGENTS.md` 或其他等价文件；注入 AI 上下文时推荐加 `--compact` 只输出硬约束精简版，完整规则留在规则库按需查阅。
 
 ## 维护规则
 - 单个文件超过 2000 行时应考虑拆分，超过 3000 行必须拆分。

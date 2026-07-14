@@ -1,5 +1,20 @@
 # Linux 服务器管理最佳实践
 
+## 硬约束
+
+> 本节是 AI 必守清单，违反即错误；下文各节是背景、示例和细节，按需阅读。
+
+- **MUST**：SSH 禁用 root 登录和密码认证，只留密钥；防火墙最小开放
+- **MUST**：监控 CPU、内存、磁盘（空间和 inode 都要），超过 80% 告警
+- **MUST**：备份自动化，且定期做恢复演练——没验证过的备份等于没有
+- **MUST**：所有应用日志配 logrotate 轮转
+- **MUST**：应急时先保留现场（top、free、df、dmesg、应用日志）再操作；回滚优先于修复
+- **MUST**：运维脚本幂等，执行 10 次和 1 次结果一样
+- **MUST**：容器设置 `--memory` / `--cpus` 资源限制
+- **MUST NOT**：Docker 镜像用 `latest` 标签，版本 pin 死
+- **MUST NOT**：共用登录账号；一人一号，操作可追溯
+- **MUST NOT**：不理解含义的内核参数乱调
+
 ## 安全基线
 - **禁用 root SSH 登录**：`PermitRootLogin no`，用普通用户 + sudo
 - **SSH 密钥认证，禁止密码登录**：`PasswordAuthentication no`

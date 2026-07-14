@@ -1,5 +1,19 @@
 # Python 最佳实践
 
+## 硬约束
+
+> 本节是 AI 必守清单，违反即错误；下文各节是背景、示例和细节，按需阅读。
+
+- **MUST**：一个项目一个虚拟环境（pyenv + virtualenv / poetry），不动系统 Python
+- **MUST**：依赖锁版本（`requests==2.31.0`，不是 `>=2`）
+- **MUST**：函数签名和公共 API 写类型注解
+- **MUST**：状态、类型、选项用 Enum，不用裸字符串到处传
+- **MUST**：数据库迁移用 Alembic / Django migrations，生成的脚本人工 review
+- **MUST**：单元测试用 pytest；外部 HTTP 依赖用 mock，不真打外部 API
+- **MUST NOT**：裸 `except:` 或 `except Exception` 不 log 就吞掉
+- **MUST NOT**：async 函数里调用阻塞的同步 IO（如 `time.sleep()`、同步 DB 驱动）
+- **MUST NOT**：异常只 print；用 `logger.exception()` 保留 traceback
+
 ## 环境管理
 - **pyenv + virtualenv / poetry**：系统 Python 别动。一个项目一个环境
 - **requirements.txt 要锁版本**：`requests==2.31.0` 而不是 `requests>=2`

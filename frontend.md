@@ -1,5 +1,20 @@
 # 前端最佳实践
 
+## 硬约束
+
+> 本节是 AI 必守清单，违反即错误；下文各节是背景、示例和细节，按需阅读。
+
+- **MUST**：框架在 Vue 与 React 之间选择时优先 React；新项目默认 React + TypeScript，`strict: true` 全开
+- **MUST**：包管理器优先 yarn（安装依赖、执行脚本都用 yarn）
+- **MUST**：JSX/TSX 不硬编码对外可见文案（UI 文案、按钮、提示、错误信息、枚举展示名），一律走 i18n 字典/资源文件
+- **MUST**：数据请求用 React Query / SWR / RTK Query，不用裸 useEffect 拉数据
+- **MUST**：`dangerouslySetInnerHTML` 必须先 sanitize（DOMPurify）
+- **MUST**：新界面项目开工前先确认平台、用户、视觉气质、UI 体系和多语言计划，再写页面
+- **MUST NOT**：使用 `any`（用 `unknown` + 类型守卫）；ESLint 配置 `no-explicit-any: error`
+- **MUST NOT**：列表有增删时用 index 做 key
+- **MUST NOT**：token 放 localStorage（access token 放内存，refresh token 放 httpOnly cookie）
+- **MUST NOT**：后端密钥放进 `VITE_` 前缀环境变量或任何前端可见配置
+
 ## 启动前设计确认
 - **先判断是不是新项目**：如果仓库缺少产品定义、设计系统、`AGENTS.md`/`CLAUDE.md` 或只有脚手架，先按新项目处理，不直接写页面
 - **先落启动文档**：新前端项目应先生成或更新协作规则文档，明确设计规范、UI token、组件状态、多语言计划、i18n、版本、测试和验收标准
@@ -63,7 +78,7 @@
 - **ESLint + Prettier**：代码风格统一。别让格式化问题进 code review
 - **pre-commit hook**：lint-staged + husky。在提交前拦住低级错误
 - **环境变量规范**：`VITE_` 前缀（Vite）暴露给前端。别把后端密钥放里面
-- **monorepo 用 pnpm workspace / turborepo**：多项目共享代码和配置
+- **monorepo 用 yarn workspaces / turborepo**：多项目共享代码和配置，包管理与单项目保持一致用 yarn；接手已有 pnpm/npm 体系的仓库则沿用现状，别为了换工具而换
 - **Go embed 部署模式**：搭配 Go 后端时，React 编译产物通过 Go `embed.FS` 打进单文件，`scp` 拷走即部署。详见 [go.md#web-服务部署go--react-embed](go.md)
 
 ## 安全

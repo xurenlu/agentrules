@@ -2,12 +2,15 @@
 
 这些是我日常工作中积累的最佳实践，写代码/做技术决策时可以参考。
 
+每个主题文档顶部有「**硬约束**」小节——只含 MUST / MUST NOT 的 AI 必守清单；正文是背景、模板和细节，按需阅读。给 AI 注入规则时用 `--compact` 只取硬约束层，省 token 且约束力更强。
+
 ## 通用
 | 文件 | 内容 |
 |------|------|
+| [ai-guardrails.md](ai-guardrails.md) | AI 协作红线：文件编辑方式、破坏性操作确认、共享分支保护、如实汇报 |
 | [programming.md](programming.md) | 编程：代码风格、错误处理、测试、设计原则、安全、日志 |
 | [design.md](design.md) | 多端设计：新项目启动门禁、第一轮确认清单、启动文档模板、UI 体系、多端规范 |
-| [version-control.md](version-control.md) | 版本管理：分支策略、语义化版本、CHANGELOG、Product Overview、Git 工作流 |
+| [version-control.md](version-control.md) | 版本管理：分支策略、语义化版本、CHANGELOG、Product Overview、Architecture 文档、Git 工作流 |
 | [deployment.md](deployment.md) | 服务部署：发布检查、迁移、产物备份、健康检查、回滚、CI/CD |
 | [database-migrations.md](database-migrations.md) | 数据库迁移：版本管理、执行规范、回滚、工具选择、CI/CD 集成 |
 | [database-queries.md](database-queries.md) | 数据库查询：SQL 规范、索引设计、查询优化、EXPLAIN、ORM |
@@ -26,10 +29,11 @@
 |------|------|
 | [CHANGELOG.md](CHANGELOG.md) | 规则库变更记录 |
 | [PRODUCT_OVERVIEW.md](PRODUCT_OVERVIEW.md) | 规则库当前状态、适用范围和维护说明 |
+| [ARCHITECTURE.md](ARCHITECTURE.md) | 规则库架构、文档边界和维护方式 |
 
 ## 工具脚本
 | 文件 | 内容 |
 |------|------|
-| [scripts/generate_claude_md.rb](scripts/generate_claude_md.rb) | 交互选择规则文档并生成整合版 AI 协作规则文档（如 `CLAUDE.md` / `AGENTS.md`） |
+| [scripts/generate_claude_md.rb](scripts/generate_claude_md.rb) | 交互选择规则文档并生成整合版 AI 协作规则文档（如 `CLAUDE.md` / `AGENTS.md`）；`--compact` 只输出各文档硬约束精简版 |
 
 > 这些不是教条，是我踩过坑之后总结的。有不同意见随时改。

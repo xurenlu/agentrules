@@ -16,6 +16,13 @@ end
 
 DOCS = [
   RuleDoc.new(
+    key: "ai-guardrails",
+    file: "ai-guardrails.md",
+    title: "AI 协作红线",
+    summary: "文件编辑方式、破坏性操作确认、共享分支保护和如实汇报",
+    tags: %w[common ai required]
+  ),
+  RuleDoc.new(
     key: "programming",
     file: "programming.md",
     title: "编程通用规范",
@@ -253,13 +260,14 @@ class RulesBundleBuilder
   def front_matter
     profile_names = Array(@options[:profiles]).map { |key| PROFILES.fetch(key, { name: key })[:name] }
     profile_line = profile_names.empty? ? "自定义选择" : profile_names.join("、")
+    mode_line = @options[:compact] ? "\n> 模式：硬约束精简版（--compact），完整背景与细节见规则库原文。" : ""
 
     <<~MARKDOWN.strip
       # #{document_name}
 
       > 由 `scripts/generate_claude_md.rb` 于 #{Date.today.iso8601} 生成。
       > 规则画像：#{profile_line}
-      > 生成来源：Alma 规则库。
+      > 生成来源：Alma 规则库。#{mode_line}
     MARKDOWN
   end
 
@@ -270,8 +278,9 @@ class RulesBundleBuilder
       - 本文件是面向 Claude / Codex / 其他 AI 编程助手的整合规则入口。
       - 若本文件与项目内更具体、更晚出现的 `AGENTS.md`、`CLAUDE.md` 或用户指令冲突，以更具体、更晚出现的指令为准。
       - AI 开工前先判断当前仓库是新项目、半成品还是既有项目迭代；判断不清时按新项目处理。
-      - 新项目或规则缺失时，先生成/更新 `AGENTS.md`、`CLAUDE.md`、`PRODUCT_OVERVIEW.md` 或等价文档，写清产品定义、技术栈、设计规范、UI token、多语言计划、版本和验收标准。
-      - 新项目关键决策应沉淀到 `docs/product-brief.md`、`docs/architecture.md`、`docs/design-system.md`、`docs/ui-tokens.md`、`docs/i18n.md` 和 `docs/decisions/`，不要只依赖 memory 或聊天记录。
+      - 新项目或规则缺失时，先生成/更新 `AGENTS.md`、`CLAUDE.md`、`PRODUCT_OVERVIEW.md`、`ARCHITECTURE.md` 或等价文档，写清产品定义、技术栈、模块边界、数据流、设计规范、UI token、多语言计划、版本和验收标准。
+      - 新项目必须创建根目录 `ARCHITECTURE.md`；技术栈、模块边界、服务通信、数据存储、接口协议、认证授权、部署拓扑或关键集成发生变化时，必须同步更新。
+      - 新项目关键决策应沉淀到 `docs/product-brief.md`、`ARCHITECTURE.md`、`docs/design-system.md`、`docs/ui-tokens.md`、`docs/i18n.md` 和 `docs/decisions/`，不要只依赖 memory 或聊天记录。
       - 新项目第一轮沟通只问 6-8 个高价值主题：定位、用户场景、首版范围、平台设备、设计方向、多语言、数据库/数据权限、交付验收；能从仓库判断的内容写成默认假设。
       - 架构、数据库、部署、测试、权限等工程决策先给最佳实践建议，再让用户确认；不要把选型责任全丢给用户。
       - UI 规范按平台和应用类型先给 2-4 套推荐方向，再让用户选择；选定后沉淀到 `docs/design-system.md`、`docs/ui-tokens.md` 等仓库文档。
@@ -289,7 +298,7 @@ class RulesBundleBuilder
 
   def body
     @docs.map do |doc|
-      content = File.read(File.join(ROOT, doc.file)).strip
+      content = doc_content(doc)
       <<~MARKDOWN.strip
         ---
 
@@ -301,6 +310,34 @@ class RulesBundleBuilder
       MARKDOWN
     end.join("\n\n")
   end
+
+  def doc_content(doc)
+    content = File.read(File.join(ROOT, doc.file), encoding: "UTF-8").strip
+    return content unless @options[:compact]
+
+    section = hard_constraints_section(content)
+    if section.nil?
+      warn "警告：#{doc.file} 缺少「## 硬约束」小节，--compact 模式回退为完整内容。"
+      return content
+    end
+
+    <<~MARKDOWN.strip
+      ## 硬约束
+
+      #{section}
+    MARKDOWN
+  end
+
+  def hard_constraints_section(content)
+    lines = content.lines
+    start_index = lines.index { |line| line.strip.match?(/\A##\s*硬约束\z/) }
+    return nil unless start_index
+
+    rest = lines[(start_index + 1)..]
+    end_offset = rest.index { |line| line.start_with?("## ") }
+    section = end_offset ? rest[0...end_offset] : rest
+    section.reject { |line| line.lstrip.start_with?(">") }.join.strip
+  end
 end
 
 def parse_options(argv)
@@ -309,6 +346,7 @@ def parse_options(argv)
     docs: [],
     output: DEFAULT_OUTPUT,
     all: false,
+    compact: false,
     dry_run: false,
     force: false,
     list: false
@@ -331,6 +369,10 @@ def parse_options(argv)
 
     opts.on("--all", "整合全部文档") do
       options[:all] = true
+    end
+
+    opts.on("--compact", "只整合各文档的「硬约束」小节，输出精简版（推荐注入 CLAUDE.md）") do
+      options[:compact] = true
     end
 
     opts.on("--dry-run", "只输出到终端，不写文件") do
