@@ -7,7 +7,7 @@
 ## 通用
 | 文件 | 内容 |
 |------|------|
-| [ai-guardrails.md](ai-guardrails.md) | AI 协作红线：文件编辑方式、破坏性操作确认、共享分支保护、如实汇报 |
+| [ai-guardrails.md](ai-guardrails.md) | AI 协作红线：文件编辑方式、破坏性操作确认、共享分支保护、如实汇报、需求文本与产品文案边界 |
 | [programming.md](programming.md) | 编程：代码风格、错误处理、测试、设计原则、安全、日志 |
 | [design.md](design.md) | 多端设计：新项目启动门禁、第一轮确认清单、启动文档模板、UI 体系、多端规范 |
 | [version-control.md](version-control.md) | 版本管理：分支策略、语义化版本、CHANGELOG、Product Overview、Architecture 文档、Git 工作流 |
