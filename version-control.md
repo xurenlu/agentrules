@@ -9,6 +9,7 @@
 - **MUST**：功能新增才提升正式版本位（MINOR/MAJOR），并把 rc 重置为 `rc1`；bugfix 只递增 rc 号（`-rc2` → `-rc3`），不得提升正式版本位（对外发布、须遵循标准 SemVer 的库/包除外，详见 `version-control.md` 语义化版本号一节）
 - **MUST**：前端与后端版本号保持一致；服务端 API 通过响应 header（如 `X-App-Version`）暴露当前版本
 - **MUST**：用户要求 git 提交时，打 `v{版本号}` tag 并随代码一起推送（远程是 GitHub 时推到 GitHub）
+- **MUST**：发布 tag 只能指向已合入默认分支的提交；tag、`PRODUCT_OVERVIEW.md`、`ARCHITECTURE.md` 和 CHANGELOG 的版本必须一致，并由 CI 校验
 - **MUST**：新项目创建根目录 `.gitignore` 和 `ARCHITECTURE.md`；架构变更在同一改动中更新文档
 - **MUST**：敏感文件（`.env`、密钥等）必须列入 `.gitignore`，不得提交
 - **MUST NOT**：直接在 main/develop 上 commit；一律走 feature 分支 + PR

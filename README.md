@@ -35,6 +35,8 @@
 | 文件 | 内容 |
 |------|------|
 | [scripts/generate_claude_md.rb](scripts/generate_claude_md.rb) | 交互选择规则文档并生成整合版 AI 协作规则文档（如 `CLAUDE.md` / `AGENTS.md`）；`--compact` 只输出各文档硬约束精简版 |
-| [.github/workflows/release-claude.yml](.github/workflows/release-claude.yml) | 推送 `v*` tag 后自动生成最终精简版 `CLAUDE.md`，并作为 GitHub Release 附件发布 |
+| [scripts/verify_rules.rb](scripts/verify_rules.rb) | 校验规则结构、必选规则、版本一致性、生成产物和嵌套 AGENTS 上溯链；输出 JSON + Markdown 报告 |
+| [.github/workflows/verify-rules.yml](.github/workflows/verify-rules.yml) | 在 PR 与分支推送时执行规则校验，并上传报告 |
+| [.github/workflows/release-claude.yml](.github/workflows/release-claude.yml) | 仅对主分支上的版本 tag 自动生成最终精简版 `CLAUDE.md`，并作为 GitHub Release 附件发布 |
 
 > 这些不是教条，是我踩过坑之后总结的。有不同意见随时改。

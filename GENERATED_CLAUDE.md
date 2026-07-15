@@ -1,6 +1,9 @@
+<!-- GENERATED FILE — DO NOT EDIT.
+     Source: Alma rule documents and scripts/generate_claude_md.rb -->
+
 # GENERATED_CLAUDE.md
 
-> 由 `scripts/generate_claude_md.rb` 于 2026-07-15 生成。
+> 由 `scripts/generate_claude_md.rb` 生成；请修改规则源文件后重新生成。
 > 规则画像：自定义选择
 > 生成来源：Alma 规则库。
 > 模式：硬约束精简版（--compact），完整背景与细节见规则库原文。
@@ -53,6 +56,8 @@
 - **MUST**：发现疑似密钥/敏感信息时优先脱敏或移除并提示风险，不复述到回复、日志或提交信息里
 - **MUST NOT**：做与任务无关的改动（顺手重构、重排格式、改无关命名）；改动范围与任务对齐
 - **MUST NOT**：把用户写给 AI/开发者的需求说明、验收标准、Prompt、规则、实现备注、调试信息或运维/发布元数据，未经判断就当作最终用户可见文案。需求默认只定义产品行为，不等于界面文案；仅当用户明确指定其为展示文案，或该信息确实是最终用户完成当前任务所必需时，才可展示，并须改写为符合最终用户角色、目标与操作场景的产品语言
+- **MUST**：根目录 `AGENTS.md` 只放全局约束；嵌套 `AGENTS.md` 必须声明 Scope 和 Parent，并只补充该目录的例外规则
+- **MUST NOT**：直接修改带 `GENERATED FILE — DO NOT EDIT` 标记的文件；必须修改源规则/模板后重新生成
 
 ---
 
@@ -257,6 +262,7 @@
 - **MUST**：功能新增才提升正式版本位（MINOR/MAJOR），并把 rc 重置为 `rc1`；bugfix 只递增 rc 号（`-rc2` → `-rc3`），不得提升正式版本位（对外发布、须遵循标准 SemVer 的库/包除外，详见 `version-control.md` 语义化版本号一节）
 - **MUST**：前端与后端版本号保持一致；服务端 API 通过响应 header（如 `X-App-Version`）暴露当前版本
 - **MUST**：用户要求 git 提交时，打 `v{版本号}` tag 并随代码一起推送（远程是 GitHub 时推到 GitHub）
+- **MUST**：发布 tag 只能指向已合入默认分支的提交；tag、`PRODUCT_OVERVIEW.md`、`ARCHITECTURE.md` 和 CHANGELOG 的版本必须一致，并由 CI 校验
 - **MUST**：新项目创建根目录 `.gitignore` 和 `ARCHITECTURE.md`；架构变更在同一改动中更新文档
 - **MUST**：敏感文件（`.env`、密钥等）必须列入 `.gitignore`，不得提交
 - **MUST NOT**：直接在 main/develop 上 commit；一律走 feature 分支 + PR

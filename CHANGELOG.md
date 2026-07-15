@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.17.0] - 2026-07-15
+
+### Added
+- 新增 `scripts/verify_rules.rb` 与规则校验 CI：检查主题文档硬约束、所有画像的必选规则覆盖、版本一致性、嵌套 `AGENTS.md` 父级链和 `GENERATED_CLAUDE.md` 同步，并输出 JSON 与 Markdown 报告。
+- AI 协作红线新增 `AGENTS.md` 作用域/继承模板和生成文件保护规则。
+
+### Changed
+- 生成器输出改为确定性内容，并在生成文件顶部标记“禁止直接编辑”，使生成产物可由 CI 稳定比对。
+- Release 工作流新增文档版本与默认分支门禁，只有合格版本 tag 才发布 `CLAUDE.md` 附件。
+
 ## [0.16.0] - 2026-07-15
 
 ### Added
