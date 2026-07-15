@@ -1,6 +1,9 @@
+<!-- GENERATED FILE — DO NOT EDIT.
+     Source: Alma rule documents and scripts/generate_claude_md.rb -->
+
 # GENERATED_CLAUDE.md
 
-> 由 `scripts/generate_claude_md.rb` 于 2026-07-15 生成。
+> 由 `scripts/generate_claude_md.rb` 生成；请修改规则源文件后重新生成。
 > 规则画像：自定义选择
 > 生成来源：Alma 规则库。
 > 模式：硬约束精简版（--compact），完整背景与细节见规则库原文。
@@ -52,6 +55,9 @@
 - **MUST**：如实报告执行结果——测试失败就说失败并附输出，跳过的步骤明确说明；不把未验证的工作说成已完成
 - **MUST**：发现疑似密钥/敏感信息时优先脱敏或移除并提示风险，不复述到回复、日志或提交信息里
 - **MUST NOT**：做与任务无关的改动（顺手重构、重排格式、改无关命名）；改动范围与任务对齐
+- **MUST NOT**：把用户写给 AI/开发者的需求说明、验收标准、Prompt、规则、实现备注、调试信息或运维/发布元数据，未经判断就当作最终用户可见文案。需求默认只定义产品行为，不等于界面文案；仅当用户明确指定其为展示文案，或该信息确实是最终用户完成当前任务所必需时，才可展示，并须改写为符合最终用户角色、目标与操作场景的产品语言
+- **MUST**：根目录 `AGENTS.md` 只放全局约束；嵌套 `AGENTS.md` 必须声明 Scope 和 Parent，并只补充该目录的例外规则
+- **MUST NOT**：直接修改带 `GENERATED FILE — DO NOT EDIT` 标记的文件；必须修改源规则/模板后重新生成
 
 ---
 
@@ -167,6 +173,7 @@
 - **MUST**：服务启动时自动执行一次 `migration up`；失败即阻止启动并输出迁移版本、文件名和错误上下文
 - **MUST**：多实例部署时迁移必须加锁（数据库锁 / 迁移工具自带锁 / 分布式锁）
 - **MUST**：提供 `migrate up` / `migrate down --steps N` / `migrate status` CLI 子命令
+- **MUST**：迁移必须尽可能幂等，可安全重复执行；只有目标数据库确实无法支持幂等实现时，才允许例外，并必须记录原因、前置条件、一次性执行保护与安全重试/恢复方案
 - **MUST**：prod 迁移前确认最近备份可恢复
 - **MUST**：高风险迁移（大表 DDL、不可逆数据变更、删字段/删表）人工审批，不随启动自动执行
 - **MUST NOT**：修改已提交的迁移文件
@@ -256,6 +263,7 @@
 - **MUST**：功能新增才提升正式版本位（MINOR/MAJOR），并把 rc 重置为 `rc1`；bugfix 只递增 rc 号（`-rc2` → `-rc3`），不得提升正式版本位（对外发布、须遵循标准 SemVer 的库/包除外，详见 `version-control.md` 语义化版本号一节）
 - **MUST**：前端与后端版本号保持一致；服务端 API 通过响应 header（如 `X-App-Version`）暴露当前版本
 - **MUST**：用户要求 git 提交时，打 `v{版本号}` tag 并随代码一起推送（远程是 GitHub 时推到 GitHub）
+- **MUST**：发布 tag 只能指向已合入默认分支的提交；tag、`PRODUCT_OVERVIEW.md`、`ARCHITECTURE.md` 和 CHANGELOG 的版本必须一致，并由 CI 校验
 - **MUST**：新项目创建根目录 `.gitignore` 和 `ARCHITECTURE.md`；架构变更在同一改动中更新文档
 - **MUST**：敏感文件（`.env`、密钥等）必须列入 `.gitignore`，不得提交
 - **MUST NOT**：直接在 main/develop 上 commit；一律走 feature 分支 + PR

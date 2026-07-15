@@ -1,8 +1,8 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-require "date"
 require "fileutils"
+require "json"
 require "optparse"
 
 RuleDoc = Struct.new(:key, :file, :title, :summary, :tags, keyword_init: true)
@@ -263,9 +263,12 @@ class RulesBundleBuilder
     mode_line = @options[:compact] ? "\n> 模式：硬约束精简版（--compact），完整背景与细节见规则库原文。" : ""
 
     <<~MARKDOWN.strip
+      <!-- GENERATED FILE — DO NOT EDIT.
+           Source: Alma rule documents and scripts/generate_claude_md.rb -->
+
       # #{document_name}
 
-      > 由 `scripts/generate_claude_md.rb` 于 #{Date.today.iso8601} 生成。
+      > 由 `scripts/generate_claude_md.rb` 生成；请修改规则源文件后重新生成。
       > 规则画像：#{profile_line}
       > 生成来源：Alma 规则库。#{mode_line}
     MARKDOWN
@@ -349,7 +352,8 @@ def parse_options(argv)
     compact: false,
     dry_run: false,
     force: false,
-    list: false
+    list: false,
+    catalog_json: false
   }
 
   parser = OptionParser.new do |opts|
@@ -387,6 +391,10 @@ def parse_options(argv)
       options[:list] = true
     end
 
+    opts.on("--catalog-json", "以 JSON 输出规则文档与项目画像目录，供校验工具使用") do
+      options[:catalog_json] = true
+    end
+
     opts.on("-h", "--help", "显示帮助") do
       puts opts
       exit 0
@@ -413,6 +421,13 @@ def print_catalog
   end
 end
 
+def print_catalog_json
+  puts JSON.generate(
+    docs: DOCS.map { |doc| { key: doc.key, file: doc.file, tags: doc.tags } },
+    profiles: PROFILES.transform_values { |profile| { docs: profile.fetch(:docs) } }
+  )
+end
+
 def output_path(path)
   File.expand_path(path, ROOT)
 end
@@ -430,6 +445,11 @@ options = parse_options(ARGV)
 
 if options[:list]
   print_catalog
+  exit 0
+end
+
+if options[:catalog_json]
+  print_catalog_json
   exit 0
 end
 
