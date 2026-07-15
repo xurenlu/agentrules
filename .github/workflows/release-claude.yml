@@ -1,0 +1,37 @@
+name: Release CLAUDE.md
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Generate and publish CLAUDE.md
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out tagged source
+        uses: actions/checkout@v4
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3"
+
+      - name: Generate final CLAUDE.md
+        run: ruby scripts/generate_claude_md.rb --all --compact --output CLAUDE.md --force
+
+      - name: Create or update GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG_NAME: ${{ github.ref_name }}
+        run: |
+          if gh release view "$TAG_NAME" >/dev/null 2>&1; then
+            gh release upload "$TAG_NAME" CLAUDE.md --clobber
+          else
+            gh release create "$TAG_NAME" CLAUDE.md --title "$TAG_NAME" --generate-notes
+          fi

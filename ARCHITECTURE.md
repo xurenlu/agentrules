@@ -1,6 +1,6 @@
 # Architecture
 
-> 最后更新：2026-07-15 | 当前版本：v0.15.0
+> 最后更新：2026-07-15 | 当前版本：v0.16.0
 
 ## 架构概览
 
@@ -27,6 +27,7 @@ Ruby 生成脚本 ─────────────► 目标项目的 AGE
 | `ARCHITECTURE.md` | 记录本仓库的系统边界、文档职责和架构演进 | 与 README、脚本和主题文档保持一致 |
 | `CHANGELOG.md` | 按版本记录规则库变更 | 版本变更时同步维护 |
 | `scripts/generate_claude_md.rb` | 交互选择规则主题并生成整合的 AI 协作规则文档；`--compact` 模式只提取各文档「硬约束」小节 | Ruby 标准库；可选 `tty-prompt` |
+| `.github/workflows/release-claude.yml` | 为版本 tag 生成最终 `CLAUDE.md` 并发布 GitHub Release 附件 | GitHub Actions、Ruby 脚本、GitHub CLI |
 
 ## 数据与接口
 
@@ -38,7 +39,7 @@ Ruby 生成脚本 ─────────────► 目标项目的 AGE
 
 - 规则文档可直接在本地仓库、Git 托管平台或目标项目中阅读。
 - 使用生成脚本时需 Ruby 运行环境；安装 `tty-prompt` 可获得更好的交互体验，缺失时脚本应降级为基础终端选择。
-- 发布方式为 Git 提交、版本号和 Git tag；变更前后需同步维护 CHANGELOG、Product Overview 与本文件。
+- 发布方式为 Git 提交、版本号和 Git tag；推送 `v*` tag 会生成与该源码版本对应的精简版 `CLAUDE.md`，并作为 GitHub Release 附件。变更前后需同步维护 CHANGELOG、Product Overview 与本文件。
 
 ## 关键决策与演进
 

@@ -35,5 +35,6 @@
 | 文件 | 内容 |
 |------|------|
 | [scripts/generate_claude_md.rb](scripts/generate_claude_md.rb) | 交互选择规则文档并生成整合版 AI 协作规则文档（如 `CLAUDE.md` / `AGENTS.md`）；`--compact` 只输出各文档硬约束精简版 |
+| [.github/workflows/release-claude.yml](.github/workflows/release-claude.yml) | 推送 `v*` tag 后自动生成最终精简版 `CLAUDE.md`，并作为 GitHub Release 附件发布 |
 
 > 这些不是教条，是我踩过坑之后总结的。有不同意见随时改。

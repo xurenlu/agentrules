@@ -1,6 +1,6 @@
 # Product Overview
 
-> 最后更新：2026-07-15 | 当前版本：v0.15.0
+> 最后更新：2026-07-15 | 当前版本：v0.16.0
 
 ## 项目简介
 Alma 规则库沉淀日常软件开发、部署、数据库、前端、设计和项目协作规范，供 AI 助手和开发者在新项目、迭代、排障、交付时统一参考。
@@ -16,7 +16,7 @@ Alma 规则库沉淀日常软件开发、部署、数据库、前端、设计和
 - 部署规范：版本、备份、健康检查、回滚、发布反馈
 - 版本控制规范：分支、语义化版本、macOS/iOS Build 号、CHANGELOG、Product Overview、Architecture 文档、`.gitignore`、提交流程，并提供两类文档的职责、更新时机与可复制模板
 - Linux 服务器规范：安全基线、监控、备份、日志、性能和应急响应
-- 工具脚本：按项目画像交互选择规则文档并生成整合版 AI 协作规则文档（如 `CLAUDE.md` / `AGENTS.md`）
+- 工具与发布：Ruby 脚本按项目画像生成整合版 AI 协作规则文档（如 `CLAUDE.md` / `AGENTS.md`）；推送版本 tag 后，GitHub Actions 自动生成最终精简版 `CLAUDE.md` 并作为 Release 附件发布
 
 ## 使用方式
 - 新项目启动时先判断项目阶段；若缺少产品定义、设计系统、架构或协作规则文档，先按 `design.md` 生成/更新 `AGENTS.md`、`CLAUDE.md`、`PRODUCT_OVERVIEW.md`、`ARCHITECTURE.md` 或等价文档。

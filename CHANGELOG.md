@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.16.0] - 2026-07-15
+
+### Added
+- 新增 GitHub Actions 发布工作流：推送 `v*` tag 后，以对应 tag 的源码运行 Ruby 脚本生成最终精简版 `CLAUDE.md`，并作为 GitHub Release 附件创建或更新。
+
 ## [0.15.0] - 2026-07-15
 
 ### Added
