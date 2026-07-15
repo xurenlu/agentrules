@@ -102,6 +102,10 @@ DOCS = [
 ].freeze
 
 PROFILES = {
+  "generic" => {
+    name: "通用项目",
+    docs: %w[programming design version-control]
+  },
   "h5" => {
     name: "H5 移动网页",
     docs: %w[programming design frontend version-control]
@@ -243,12 +247,13 @@ class RulesBundleBuilder
   end
 
   def build
-    [
-      front_matter,
+    parts = [
       instructions,
       source_index,
       body
-    ].join("\n\n")
+    ]
+    parts.unshift(front_matter) unless @options[:fragment]
+    parts.join("\n\n")
   end
 
   private
@@ -353,7 +358,8 @@ def parse_options(argv)
     dry_run: false,
     force: false,
     list: false,
-    catalog_json: false
+    catalog_json: false,
+    fragment: false
   }
 
   parser = OptionParser.new do |opts|
@@ -393,6 +399,10 @@ def parse_options(argv)
 
     opts.on("--catalog-json", "以 JSON 输出规则文档与项目画像目录，供校验工具使用") do
       options[:catalog_json] = true
+    end
+
+    opts.on("--fragment", "仅输出规则正文片段，供 AGENTS.md 等模板嵌入") do
+      options[:fragment] = true
     end
 
     opts.on("-h", "--help", "显示帮助") do

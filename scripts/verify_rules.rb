@@ -10,6 +10,7 @@ require "tmpdir"
 
 ROOT = File.expand_path("..", __dir__)
 GENERATOR = File.join(ROOT, "scripts", "generate_claude_md.rb")
+PROJECT_AGENT_GENERATOR = File.join(ROOT, "scripts", "generate_project_agents.rb")
 GENERATED_ARTIFACT = File.join(ROOT, "GENERATED_CLAUDE.md")
 VERSION_FILES = {
   "PRODUCT_OVERVIEW.md" => File.join(ROOT, "PRODUCT_OVERVIEW.md"),
@@ -28,6 +29,7 @@ class RuleVerifier
     verify_hard_constraints(catalog.fetch("docs"))
     verify_required_docs(catalog)
     verify_generated_artifact
+    verify_project_agent_generator
     verify_versions
     verify_nested_agents
 
@@ -65,6 +67,57 @@ class RuleVerifier
       header = generated && File.read(GENERATED_ARTIFACT, encoding: "UTF-8").start_with?("<!-- GENERATED FILE — DO NOT EDIT.")
       record("生成产物同步", generated && header, generated && header ? "GENERATED_CLAUDE.md 与生成器一致，且标明不可直接编辑。" : "请重新生成 GENERATED_CLAUDE.md，且保留生成文件标记。")
     end
+  end
+
+  def verify_project_agent_generator
+    Dir.mktmpdir("agentrules-project") do |dir|
+      create_project_fixture(dir)
+      first = project_generator_output(dir)
+      generated_paths = %w[AGENTS.md apps/web/AGENTS.md services/api/AGENTS.md .github/AGENTS.md]
+      generated = generated_paths.all? { |path| File.exist?(File.join(dir, path)) }
+      parent_chain = nested_fixture_agents(dir).all? { |path| File.read(path, encoding: "UTF-8").include?("> **Parent:**") }
+      web_agent = File.read(File.join(dir, "apps", "web", "AGENTS.md"), encoding: "UTF-8")
+      package_manager_ok = web_agent.include?("`npm ci`") && web_agent.include?("`npm run test`")
+      root_before = File.binread(File.join(dir, "AGENTS.md"))
+      second = project_generator_output(dir)
+      preserved = File.binread(File.join(dir, "AGENTS.md")) == root_before
+      skipped = second.fetch("actions").all? { |action| action.fetch("status") == "skipped" }
+      template_ok = first.fetch("template") == "go-react-embed"
+      passed = generated && parent_chain && package_manager_ok && preserved && skipped && template_ok
+      record("项目 AGENTS 脚手架", passed, project_generator_detail(passed))
+    end
+  end
+
+  def create_project_fixture(dir)
+    FileUtils.mkdir_p(File.join(dir, "apps", "web"))
+    FileUtils.mkdir_p(File.join(dir, "services", "api"))
+    FileUtils.mkdir_p(File.join(dir, ".github", "workflows"))
+    package = { name: "fixture", private: true, scripts: { lint: "eslint .", test: "vitest run", build: "vite build" } }
+    File.write(File.join(dir, "package-lock.json"), "{}\n", encoding: "UTF-8")
+    File.write(File.join(dir, "apps", "web", "package.json"), "#{JSON.pretty_generate(package)}\n", encoding: "UTF-8")
+    File.write(File.join(dir, "services", "api", "go.mod"), "module example.test/api\n\ngo 1.24\n", encoding: "UTF-8")
+  end
+
+  def project_generator_output(dir)
+    output, status = Open3.capture2e(
+      RbConfig.ruby,
+      PROJECT_AGENT_GENERATOR,
+      "--target",
+      dir
+    )
+    raise "项目 AGENTS 生成器执行失败：#{output}" unless status.success?
+
+    JSON.parse(output)
+  end
+
+  def nested_fixture_agents(dir)
+    Dir.glob(File.join(dir, "**", "AGENTS.md")).reject { |path| path == File.join(dir, "AGENTS.md") }
+  end
+
+  def project_generator_detail(passed)
+    return "分层生成、模板选择、锁文件适配、Parent 上溯链与禁止覆盖均通过。" if passed
+
+    "项目脚手架行为异常：请检查首次生成、锁文件适配、Parent 链接和重复执行保护。"
   end
 
   def verify_versions

@@ -35,8 +35,26 @@
 | 文件 | 内容 |
 |------|------|
 | [scripts/generate_claude_md.rb](scripts/generate_claude_md.rb) | 交互选择规则文档并生成整合版 AI 协作规则文档（如 `CLAUDE.md` / `AGENTS.md`）；`--compact` 只输出各文档硬约束精简版 |
-| [scripts/verify_rules.rb](scripts/verify_rules.rb) | 校验规则结构、必选规则、版本一致性、生成产物和嵌套 AGENTS 上溯链；输出 JSON + Markdown 报告 |
+| [scripts/generate_project_agents.rb](scripts/generate_project_agents.rb) | 扫描目标项目并生成分层 `AGENTS.md`：支持通用、React、Go API、Go + React 模板；已有文件一律跳过，不覆盖人工规则 |
+| [templates/agents/](templates/agents/) | 根目录与模块级 `AGENTS.md` 的可维护 ERB 模板 |
+| [scripts/verify_rules.rb](scripts/verify_rules.rb) | 校验规则结构、必选规则、版本一致性、生成产物和嵌套 AGENTS 上溯链，并集成测试项目脚手架的重复执行安全性；输出 JSON + Markdown 报告 |
 | [.github/workflows/verify-rules.yml](.github/workflows/verify-rules.yml) | 在 PR 与分支推送时执行规则校验，并上传报告 |
 | [.github/workflows/release-claude.yml](.github/workflows/release-claude.yml) | 仅对主分支上的版本 tag 自动生成最终精简版 `CLAUDE.md`，并作为 GitHub Release 附件发布 |
+
+## 为项目生成分层 AGENTS.md
+
+先预览生成计划：
+
+```bash
+ruby scripts/generate_project_agents.rb --target /path/to/project --dry-run
+```
+
+确认后生成：
+
+```bash
+ruby scripts/generate_project_agents.rb --target /path/to/project
+```
+
+脚本会自动识别通用、React、Go API 或 Go + React 项目，也可用 `--template` 明确指定。它只创建缺失的 `AGENTS.md`，已有文件会报告为 `skipped`；可通过 `--json-output` 和 `--markdown-output` 保存审计报告。
 
 > 这些不是教条，是我踩过坑之后总结的。有不同意见随时改。

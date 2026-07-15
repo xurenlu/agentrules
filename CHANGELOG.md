@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.19.0] - 2026-07-15
+
+### Added
+- 新增 `scripts/generate_project_agents.rb`：扫描目标项目，为根目录与模块目录生成带 Scope、Parent、常用命令和局部规则的分层 `AGENTS.md`；支持通用、React、Go API、Go + React 模板，按现有锁文件选择包管理器，并提供 dry-run、JSON/Markdown 报告。
+- 新增根目录与模块级 `AGENTS.md` ERB 模板；脚手架只创建缺失文件，已有人工规则一律跳过。
+- 规则校验新增临时多模块项目集成测试，验证模板选择、分层生成、Parent 上溯链及重复执行不覆盖。
+
+### Changed
+- 单文件规则生成器新增通用项目画像和 `--fragment` 模式，供项目脚手架复用精简规则基线。
+
 ## [0.18.0] - 2026-07-15
 
 ### Changed
