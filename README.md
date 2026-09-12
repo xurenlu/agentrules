@@ -2,7 +2,7 @@
 
 这些是我日常工作中积累的最佳实践，写代码/做技术决策时可以参考。
 
-每个主题文档顶部有「**硬约束**」小节——只含 MUST / MUST NOT 的 AI 必守清单；正文是背景、模板和细节，按需阅读。给 AI 注入规则时用 `--compact` 只取硬约束层，省 token 且约束力更强。
+每个主题文档顶部有「**硬约束**」小节——只含 MUST / MUST NOT 的 AI 必守清单；正文是背景、模板和细节，按需阅读。项目级规则可用 `--compact` 只取硬约束层；全局 `AGENTS.md` 推荐用 `--index` 只生成路由索引，避免每轮注入全部正文。
 
 ## 通用
 | 文件 | 内容 |
@@ -34,12 +34,21 @@
 ## 工具脚本
 | 文件 | 内容 |
 |------|------|
-| [scripts/generate_claude_md.rb](scripts/generate_claude_md.rb) | 交互选择规则文档并生成整合版 AI 协作规则文档（如 `CLAUDE.md` / `AGENTS.md`）；`--compact` 只输出各文档硬约束精简版 |
+| [scripts/generate_claude_md.rb](scripts/generate_claude_md.rb) | 交互选择规则文档并生成 AI 协作规则；`--compact` 输出硬约束精简版，`--index` 输出不含主题正文的按需索引版 |
 | [scripts/generate_project_agents.rb](scripts/generate_project_agents.rb) | 扫描目标项目并生成分层 `AGENTS.md`：支持通用、React、Go API、Go + React 模板；已有文件一律跳过，不覆盖人工规则 |
 | [templates/agents/](templates/agents/) | 根目录与模块级 `AGENTS.md` 的可维护 ERB 模板 |
 | [scripts/verify_rules.rb](scripts/verify_rules.rb) | 校验规则结构、必选规则、版本一致性、生成产物和嵌套 AGENTS 上溯链，并集成测试项目脚手架的重复执行安全性；输出 JSON + Markdown 报告 |
 | [.github/workflows/verify-rules.yml](.github/workflows/verify-rules.yml) | 在 PR 与分支推送时执行规则校验，并上传报告 |
-| [.github/workflows/release-claude.yml](.github/workflows/release-claude.yml) | 仅对主分支上的版本 tag 自动生成最终精简版 `CLAUDE.md`，并作为 GitHub Release 附件发布 |
+| [.github/workflows/release-claude.yml](.github/workflows/release-claude.yml) | 仅对主分支上的版本 tag 自动生成硬约束版 `CLAUDE.md` 与索引版 `AGENTS.md`，并作为 GitHub Release 附件发布 |
+
+## 生成全局精简索引
+
+```bash
+ruby scripts/generate_claude_md.rb --all --index --output AGENTS.md --force
+```
+
+索引版只保留使用说明、优先级和主题链接。AI 应按任务读取直接相关的源规则，不应在开工时批量加载整个规则库。
+需要生成离线目录内的相对链接时，增加 `--index-base .`。
 
 ## 为项目生成分层 AGENTS.md
 

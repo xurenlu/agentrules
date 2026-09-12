@@ -9,6 +9,7 @@ RuleDoc = Struct.new(:key, :file, :title, :summary, :tags, keyword_init: true)
 
 ROOT = File.expand_path("..", __dir__)
 DEFAULT_OUTPUT = "CLAUDE.md"
+RULES_REPOSITORY_URL = "https://github.com/xurenlu/agentrules/blob/main"
 
 def output_document_name(path)
   File.basename(path.to_s.empty? ? DEFAULT_OUTPUT : path)
@@ -249,9 +250,9 @@ class RulesBundleBuilder
   def build
     parts = [
       instructions,
-      source_index,
-      body
+      source_index
     ]
+    parts << body unless @options[:index]
     parts.unshift(front_matter) unless @options[:fragment]
     parts.join("\n\n")
   end
@@ -265,7 +266,13 @@ class RulesBundleBuilder
   def front_matter
     profile_names = Array(@options[:profiles]).map { |key| PROFILES.fetch(key, { name: key })[:name] }
     profile_line = profile_names.empty? ? "自定义选择" : profile_names.join("、")
-    mode_line = @options[:compact] ? "\n> 模式：硬约束精简版（--compact），完整背景与细节见规则库原文。" : ""
+    mode_line = if @options[:index]
+                  "\n> 模式：按需读取索引版（--index），不内嵌主题规则正文。"
+                elsif @options[:compact]
+                  "\n> 模式：硬约束精简版（--compact），完整背景与细节见规则库原文。"
+                else
+                  ""
+                end
 
     <<~MARKDOWN.strip
       <!-- GENERATED FILE — DO NOT EDIT.
@@ -280,6 +287,8 @@ class RulesBundleBuilder
   end
 
   def instructions
+    return index_instructions if @options[:index]
+
     <<~MARKDOWN.strip
       ## 使用说明
 
@@ -299,7 +308,31 @@ class RulesBundleBuilder
     MARKDOWN
   end
 
+  def index_instructions
+    <<~MARKDOWN.strip
+      ## 使用说明
+
+      - 本文件是规则索引，不内嵌主题规则正文；不要因为看到索引就一次性读取全部规则。
+      - 指令优先级：系统 / 开发者 / 用户指令 > 目标仓库内更具体的 `AGENTS.md` / `CLAUDE.md` > 本索引。
+      - 开工前根据任务类型，只读取下方索引中直接相关的规则文件；任务范围扩大时再补读。
+      - 修改任何文件前先检查目标仓库的本地规则、工作区状态和既有实现，保留用户已有改动。
+      - 涉及代码时至少读取 `ai-guardrails.md`、`programming.md`；涉及提交、版本或发布时再读取 `version-control.md`。
+      - 不得输出或提交密钥、Token、凭据、个人隐私数据；疑似敏感信息先停止扩散并脱敏处理。
+      - 规则源文件以 GitHub 默认分支为准；本地存在 agentrules 仓库时优先读取同名本地文件。
+    MARKDOWN
+  end
+
   def source_index
+    return embedded_source_index unless @options[:index]
+
+    index_base = @options[:index_base].to_s.sub(%r{/\z}, "")
+    lines = @docs.map do |doc|
+      "- [#{doc.title}](#{index_base}/#{doc.file})（`#{doc.file}`）：#{doc.summary}"
+    end
+    (["## 按需规则索引"] + lines).join("\n")
+  end
+
+  def embedded_source_index
     lines = @docs.map { |doc| "- `#{doc.file}`：#{doc.summary}" }
     (["## 本次整合文档"] + lines).join("\n")
   end
@@ -355,6 +388,8 @@ def parse_options(argv)
     output: DEFAULT_OUTPUT,
     all: false,
     compact: false,
+    index: false,
+    index_base: RULES_REPOSITORY_URL,
     dry_run: false,
     force: false,
     list: false,
@@ -385,6 +420,14 @@ def parse_options(argv)
       options[:compact] = true
     end
 
+    opts.on("--index", "只生成按需读取的规则索引，不内嵌主题正文（推荐用作全局 AGENTS.md）") do
+      options[:index] = true
+    end
+
+    opts.on("--index-base BASE", "设置 --index 的规则链接根路径，默认指向 GitHub 主分支") do |value|
+      options[:index_base] = value
+    end
+
     opts.on("--dry-run", "只输出到终端，不写文件") do
       options[:dry_run] = true
     end
@@ -412,6 +455,7 @@ def parse_options(argv)
   end
 
   parser.parse!(argv)
+  abort("--compact 与 --index 不能同时使用。") if options[:compact] && options[:index]
   options
 rescue OptionParser::ParseError => e
   warn e.message

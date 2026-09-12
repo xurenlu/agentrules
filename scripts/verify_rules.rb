@@ -12,6 +12,7 @@ ROOT = File.expand_path("..", __dir__)
 GENERATOR = File.join(ROOT, "scripts", "generate_claude_md.rb")
 PROJECT_AGENT_GENERATOR = File.join(ROOT, "scripts", "generate_project_agents.rb")
 GENERATED_ARTIFACT = File.join(ROOT, "GENERATED_CLAUDE.md")
+GENERATED_INDEX_ARTIFACT = File.join(ROOT, "GENERATED_AGENTS.md")
 VERSION_FILES = {
   "PRODUCT_OVERVIEW.md" => File.join(ROOT, "PRODUCT_OVERVIEW.md"),
   "ARCHITECTURE.md" => File.join(ROOT, "ARCHITECTURE.md")
@@ -29,6 +30,7 @@ class RuleVerifier
     verify_hard_constraints(catalog.fetch("docs"))
     verify_required_docs(catalog)
     verify_generated_artifact
+    verify_generated_index_artifact
     verify_project_agent_generator
     verify_versions
     verify_nested_agents
@@ -66,6 +68,22 @@ class RuleVerifier
       generated = File.exist?(GENERATED_ARTIFACT) && File.binread(GENERATED_ARTIFACT) == File.binread(expected)
       header = generated && File.read(GENERATED_ARTIFACT, encoding: "UTF-8").start_with?("<!-- GENERATED FILE — DO NOT EDIT.")
       record("生成产物同步", generated && header, generated && header ? "GENERATED_CLAUDE.md 与生成器一致，且标明不可直接编辑。" : "请重新生成 GENERATED_CLAUDE.md，且保留生成文件标记。")
+    end
+  end
+
+  def verify_generated_index_artifact
+    Dir.mktmpdir("agentrules-index-verify") do |dir|
+      expected = File.join(dir, "GENERATED_AGENTS.md")
+      generator_output("--all", "--index", "--output", expected, "--force")
+      generated = File.exist?(GENERATED_INDEX_ARTIFACT) && File.binread(GENERATED_INDEX_ARTIFACT) == File.binread(expected)
+      content = generated ? File.read(GENERATED_INDEX_ARTIFACT, encoding: "UTF-8") : ""
+      header = content.start_with?("<!-- GENERATED FILE — DO NOT EDIT.")
+      source_files = generator_catalog.fetch("docs").map { |doc| doc.fetch("file") }
+      links_all_sources = source_files.all? { |file| content.include?("/#{file}") }
+      no_embedded_body = !content.include?("## 硬约束")
+      passed = generated && header && links_all_sources && no_embedded_body
+      detail = passed ? "GENERATED_AGENTS.md 与索引生成器一致，只包含按需链接，不内嵌主题正文。" : "请重新生成 GENERATED_AGENTS.md，并检查来源链接和正文未内嵌约束。"
+      record("索引产物同步", passed, detail)
     end
   end
 

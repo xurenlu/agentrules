@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.20.0] - 2026-08-22
+
+### Added
+- 单文件规则生成器新增 `--index` 模式，只输出使用说明和主题索引，不内嵌规则正文；`--index-base` 可在 GitHub 链接与离线相对路径之间切换。
+- 新增 `GENERATED_AGENTS.md` 确定性样例，并将索引同步、来源完整性和正文未内嵌纳入规则校验。
+
+### Changed
+- 版本 tag 发布工作流现在同时发布硬约束版 `CLAUDE.md` 与按需索引版 `AGENTS.md`。
+- README、Product Overview 与 Architecture 明确区分项目级 `--compact` 和全局 `--index` 的使用场景。
+
 ## [0.19.0] - 2026-07-15
 
 ### Added
