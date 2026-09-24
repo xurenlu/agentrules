@@ -8,6 +8,9 @@ require "optparse"
 require "rbconfig"
 require "tmpdir"
 
+# 默认编码随 locale 变化会读不到含中文的规则文本和子进程输出，这里显式固定 UTF-8
+Encoding.default_external = Encoding::UTF_8
+
 ROOT = File.expand_path("..", __dir__)
 GENERATOR = File.join(ROOT, "scripts", "generate_claude_md.rb")
 PROJECT_AGENT_GENERATOR = File.join(ROOT, "scripts", "generate_project_agents.rb")
@@ -212,7 +215,7 @@ end
 
 def write_report(path, content)
   FileUtils.mkdir_p(File.dirname(path))
-  File.write(path, content)
+  File.write(path, content, encoding: "UTF-8")
 end
 
 def markdown_report(result)

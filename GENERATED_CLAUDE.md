@@ -46,8 +46,9 @@
 
 ## 硬约束
 
-- **MUST**：创建/更新文件用编辑/写文件能力（直接写入文件、应用补丁），确保变更可审计、可回滚、可 review
-- **MUST NOT**：用管道、`cat`、`echo` 重定向、heredoc 等 shell 方式生成或覆写文件内容
+- **MUST**：创建/更新文件优先用编辑/写文件能力（Write / Edit / apply patch），确保变更可审计、可回滚、可 review
+- **MUST NOT**：用管道、`cat`、`echo` 重定向、`sed -i`、heredoc 等 shell 写法生成或覆写文件内容
+- **MUST**：当前环境确实没有编辑/写文件能力时，按「写文件工具 → 脚本（优先 Python）→ heredoc」的顺序退让，并说明为什么走了脚本；heredoc 只在最后一步用，写之前把完整内容核对一遍
 - **MUST**：破坏性或不可逆操作先向用户确认后再执行：删除数据、覆盖未读过的文件、强制推送、对外发布、执行 `migrate down`
 - **MUST NOT**：`git push --force` 到 main / develop 等共享分支
 - **MUST NOT**：执行不带 WHERE 的 UPDATE / DELETE，或 DROP / TRUNCATE 等语句，除非用户明确要求且已确认备份可恢复

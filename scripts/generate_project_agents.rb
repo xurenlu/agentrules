@@ -9,6 +9,9 @@ require "optparse"
 require "pathname"
 require "rbconfig"
 
+# 默认编码随 locale 变化会让模板渲染、子进程输出和文件写入报 US-ASCII 编码错，这里显式固定 UTF-8
+Encoding.default_external = Encoding::UTF_8
+
 ROOT = File.expand_path("..", __dir__)
 RULE_GENERATOR = File.join(ROOT, "scripts", "generate_claude_md.rb")
 ROOT_TEMPLATE = File.join(ROOT, "templates", "agents", "root.md.erb")

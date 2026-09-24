@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.22.0] - 2026-09-24
+
+### Changed
+- `ai-guardrails.md` 写文件约束从「一律禁止 shell 写法」调整为优先级阶梯：默认用编辑/写文件能力（Write / Edit / apply patch），没有该能力时退回脚本写文件并优先 Python，`cat` / `echo` 重定向 / `sed -i` / heredoc 退到最后手段。
+  - 起因是一次实际执行：前半段改动用 Python 脚本和 `sed` 改文件、两个迁移文件用 heredoc 生成，目标达成了，但 heredoc 的引号转义、变量插值和缩进会静默改变写入内容，出错后也没有 diff 可回滚。
+  - 对应章节从「为什么禁止 shell 方式写文件」改为「写文件方式的优先级」，保留原有三条理由（不可审计、易出错、不可恢复），并补充 `sed -i` 在 BSD/macOS 与 GNU 上语义不同、换平台即写坏。
+
+### Fixed
+- `scripts/generate_claude_md.rb`、`scripts/generate_project_agents.rb`、`scripts/verify_rules.rb` 显式固定 UTF-8：脚本顶部设 `Encoding.default_external = Encoding::UTF_8`，两处裸 `File.write` 补 `encoding: "UTF-8"`。
+  - 起因是本地裸跑 `ruby scripts/verify_rules.rb` 必然失败：shell 未设 `LANG` 时 Ruby 默认外部编码回落为 US-ASCII，`generate_project_agents.rb` 拿到含中文的子进程输出后 `.strip` 抛 `invalid byte sequence in US-ASCII`（Ruby 2.6 则在 ERB 渲染处报 `incompatible character encodings`）。CI 自带 UTF-8 locale，所以主分支一直是绿的，只有本地复现。
+
 ## [0.21.0] - 2026-09-12
 
 ### Added
