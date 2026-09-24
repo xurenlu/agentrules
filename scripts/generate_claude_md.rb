@@ -5,6 +5,9 @@ require "fileutils"
 require "json"
 require "optparse"
 
+# 默认编码随 locale 变化会让子进程输出和文件写入报 US-ASCII 编码错，这里显式固定 UTF-8
+Encoding.default_external = Encoding::UTF_8
+
 RuleDoc = Struct.new(:key, :file, :title, :summary, :tags, keyword_init: true)
 
 ROOT = File.expand_path("..", __dir__)
@@ -492,7 +495,7 @@ def write_output(path, content, force)
   end
 
   FileUtils.mkdir_p(File.dirname(path))
-  File.write(path, "#{content}\n")
+  File.write(path, "#{content}\n", encoding: "UTF-8")
 end
 
 options = parse_options(ARGV)
